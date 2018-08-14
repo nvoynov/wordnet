@@ -10,27 +10,42 @@ module WordNet
     private_class_method :new
 
     # @param word [String]
-    # @param pos [Symbol] part of speEch seE #:PARTS_OF_SPEACH
-    # @return [Array<String>] array of word definitions
-    def definition(word, pos = nil)
-      return {pos => pos_definition(word, pos)} if pos
+    # @param pos [Symbol] part of speEch see #::PARTS_OF_SPEACH
+    # @return [String] lemma of word
+    def lemma(word, pos)
+      w = word.downcase.to_sym
+      w = @exclusions[pos][w] unless @words[pos].key?(w)
+      return w.to_s if @words[pos].key?(w)
+      # TODO try substitutions
+      nil
+    end
 
-      PARTS_OF_SPEACH.inject({}) do |out, pos|
-        defs = pos_definition(word, pos)
-        out[pos] = defs if defs && !defs.empty?
-        out
-      end
+    # TODO split by ';' excluding semicolon inside an example
+    # @param word [String]
+    # @param pos [Symbol] part of speEch see #::PARTS_OF_SPEACH
+    # @return [Array<Array<String>>] array of word definitions and examples  ```[definition, example1, example2, ...]```
+    def definitions(word, pos)
+      w = word.downcase.to_sym
+      w = @exclusions[pos][w] unless @words[pos].key?(w)
+      # @words[pos].key?(w) or w = @exclusions[pos][w]
+      indexes = @words[pos][w] or return []
+      indexes.inject([]){|defs, i|
+        defs << @definitions[pos][i.to_sym].split(';').map(&:strip)
+      }
+    end
+
+    # @param word [String] word to check
+    # @param pos [Symbol] part of speEch seE #:PARTS_OF_SPEACH
+    # @return [Boolean]
+    def include?(word, pos)
+      # @words[pos][word.to_sym] and return true
+      w = word.downcase.to_sym
+      return true if @words[pos][w]
+      return true if @exclusions[pos][w]
+      false
     end
 
     protected
-
-    # @param word [String]
-    # @param pos [Symbol] part of speEch seE #:PARTS_OF_SPEACH
-    # @return [Array<String>] array of word definitions
-    def pos_definition(word, pos)
-      indexes = @words[pos][word.to_sym] or return []
-      indexes.inject([]){|defs, i| defs << @definitions[pos][i.to_sym]}
-    end
 
     def initialize
       @words = {}
