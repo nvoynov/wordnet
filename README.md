@@ -1,6 +1,12 @@
-# Wordnet
+# WordNet
 
-`wordnet` gem provides an interface to [WordNet®](https://wordnet.princeton.edu/) that is a Lexical Database for English. At the moment all that it does loading WordNet database files (`index.<pos>`, `<pos>.exc`, and `data.pos`) and providing function for getting definition of word `definition(word, pos = nil)`. The optional parameter `pos` defines part of speech.
+`wordnet` gem provides an interface to [WordNet®](https://wordnet.princeton.edu/) that is a Lexical Database for English. It loads WordNet database files (`index.<pos>`, `<pos>.exc`, and `data.pos`) and provides the following functions:
+
+1. definitions(word, pos);
+2. lemma(word, pos);
+3. find(word).
+
+The WordNet::Dictionary does not support sentences at the moment, instead of fact that [WordNet®](https://wordnet.princeton.edu/) has a lot of them. And the first following task will be checking if the word is a  phrase or if the word is included in phrases of the dictionary.
 
 ## Installation
 
@@ -24,27 +30,75 @@ Or install it yourself as:
 require 'wordnet'
 require 'pp'
 
-dict = WordNet.dictionary
-pp dict.definition('abandon')
-pp dict.definition('abandon', :noun)
+dict = WordNet::Dictionary.instance
+
+pp dict.definitions('dictionary', :noun)
+pp dict.lemma('dictionaries', :noun)
+pp dict.lemma('oxen', :noun)
+pp dict.find('winters')
+pp dict.definitions('winter', :noun)
+pp dict.definitions('winter', :verb)
 ```
 
-For WordNet database 3.1 the code above will return the following two hashes:
+For WordNet database 3.1 the code above will return the following:
 
 ```
-{:noun=>
-  ["the trait of lacking restraint or control; reckless freedom from inhibition or worry; \"she danced with abandon\"",
-   "a feeling of extreme emotional intensity; \"the wildness of his anger\""],
- :verb=>
-  ["forsake, leave behind; \"We abandoned the old car in the empty parking lot\"",
-   "give up with the intent of never claiming again; \"Abandon your life to God\"; \"She gave up her children to her ex-husband when she moved to Tahiti\"; \"We gave the drowning victim up for dead\"",
-   "leave behind empty; move out of; \"You must vacate your office by tonight\"",
-   "stop maintaining or insisting on; of ideas or claims; \"He abandoned the thought of asking for her hand in marriage\"; \"Both sides have to give up some claims in these negotiations\"",
-   "leave someone who needs or counts on you; leave in the lurch; \"The mother deserted her children\""]}
+[["a reference book containing an alphabetical list of words with information about them"]]
 
-{:noun=>
-  ["the trait of lacking restraint or control; reckless freedom from inhibition or worry; \"she danced with abandon\"",
-   "a feeling of extreme emotional intensity; \"the wildness of his anger\""]}
+"dictionary"
+
+"ox"
+
+{:noun=>"winter", :verb=>"winter"}
+
+[["the coldest season of the year",
+  "in the northern hemisphere it extends from the winter solstice to the vernal equinox"]]
+
+[["spend the winter",
+  "\"We wintered on the Riviera\"",
+  "\"Shackleton's men overwintered on Elephant Island\""]]
+```
+
+Note that `definition` returns array of definitions where each definition is array where its first item is the definition and rest of items are examples.
+
+Suppose we want get definitions for `word`
+
+```ruby
+definitions = dict.definitions('word', :noun)
+puts '-= word, noun =-'
+definitions.each_with_index do |item, index|
+  definition, *examples = item
+  puts "#{index + 1}) #{definition}"
+  examples.each{|e| puts "- #{e}"}
+end
+```
+
+The code above will return
+
+```
+-= word, noun =-
+1) a unit of language that native speakers can identify
+- "words are the blocks from which sentences are made"
+- "he hardly said ten words all morning"
+2) a brief statement
+- "he didn't say a word about it"
+3) information about recent and important events
+- "they awaited news of the outcome"
+4) a verbal command for action
+- "when I give the word, charge!"
+5) an exchange of views on some topic
+- "we had a good discussion"
+- "we had a word or two about it"
+6) a promise
+- "he gave his word"
+7) a string of bits stored in computer memory
+- "large computers use words up to 64 bits long"
+8) the divine word of God
+- the second person in the Trinity (incarnate in Jesus)
+9) a secret word or phrase known only to a restricted group
+- "he forgot the password"
+10) the sacred writings of the Christian religions
+- "he went to carry the Word to the heathen"
 ```
 
 ## Development
