@@ -59,9 +59,7 @@ For WordNet database 3.1 the code above will return the following:
   "\"Shackleton's men overwintered on Elephant Island\""]]
 ```
 
-Note that `definition` returns array of definitions where each definition is array where its first item is the definition and rest of items are examples.
-
-Suppose we want get definitions for `word`
+Note that `definition` returns array of definitions where each definition is array where its first item is the definition and rest of the items are examples. Suppose we want to get definitions for `word` ...
 
 ```ruby
 definitions = dict.definitions('word', :noun)

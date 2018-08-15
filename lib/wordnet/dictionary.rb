@@ -8,6 +8,7 @@ module WordNet
     include Singleton
 
     attr_reader :exclusions
+    attr_reader :words
 
     private_class_method :new
 
@@ -154,19 +155,28 @@ if __FILE__ == $0
   require 'pp'
   dict = WordNet::Dictionary.instance
 
-  pp dict.definitions('dictionary', :noun)
-  pp dict.lemma('dictionaries', :noun)
-  pp dict.lemma('oxen', :noun)
-  pp dict.find('winters')
-  pp dict.definitions('winter', :noun)
-  pp dict.definitions('winter', :verb)
+  # pp dict.definitions('dictionary', :noun)
+  # pp dict.lemma('dictionaries', :noun)
+  # pp dict.lemma('oxen', :noun)
+  # pp dict.find('winters')
+  # pp dict.definitions('winter', :noun)
+  # pp dict.definitions('winter', :verb)
+  #
+  # definitions = dict.definitions('word', :noun)
+  # puts '-= word, noun =-'
+  # definitions.each_with_index do |item, index|
+  #   definition, *examples = item
+  #   puts "#{index + 1}) #{definition}"
+  #   examples.each{|e| puts "- #{e}"}
+  # end
 
-  definitions = dict.definitions('word', :noun)
-  puts '-= word, noun =-'
-  definitions.each_with_index do |item, index|
-    definition, *examples = item
-    puts "#{index + 1}) #{definition}"
-    examples.each{|e| puts "- #{e}"}
+  dict.words.keys.each do |pos|
+    source  = dict.words[pos]
+    puts "-= #{pos} =-"
+    source.keys
+      .select{|key| key.to_s.include?('_')}
+      .map{ |key| key.to_s.gsub('_', ' ')}
+      .each{|key| puts key}
   end
 
 end
